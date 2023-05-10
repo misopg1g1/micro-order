@@ -11,7 +11,7 @@ import {
 import { BusinessErrorsInterceptor } from 'src/shared/interceptors/business-errors.interceptor';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './order.dto';
-import { ApiQuery } from '@nestjs/swagger';
+import {ApiBody, ApiQuery} from '@nestjs/swagger';
 
 @UseInterceptors(BusinessErrorsInterceptor)
 @Controller('order')
@@ -30,7 +30,7 @@ export class OrderController {
   async getAllOrders(
     @Query('skip') skip?: number,
     @Query('take') take?: number,
-    @Query('relations') relations: any = false,
+    @Query('relations') relations: any = true,
   ) {
     let transformedRelations = relations;
     if (typeof relations === 'string') {
@@ -40,9 +40,10 @@ export class OrderController {
   }
 
   @Get(':order_id')
+  @ApiQuery({ name: 'relations', required: false, type: Boolean })
   async getOrderById(
-    @Param('order_id') order_id,
-    @Query('relations') relations: any = false,
+    @Param('order_id') order_id: string,
+    @Query('relations') relations: any = true,
   ) {
     let transformedRelations = relations;
     if (typeof relations === 'string') {
@@ -52,8 +53,9 @@ export class OrderController {
   }
 
   @Put(':order_id')
+  @ApiBody({})
   async updateOrderById(
-    @Param('order_id') order_id,
+    @Param('order_id') order_id: string,
     @Body() partialOrder: object,
   ) {
     return await this.orderService.update(order_id, partialOrder);

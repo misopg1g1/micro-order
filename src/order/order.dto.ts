@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ItemDto } from './item.dto';
-import { Type } from 'class-transformer';
+import {Transform, TransformFnParams, Type} from 'class-transformer';
 
 export class CreateOrderDto {
   @ApiProperty()
@@ -22,15 +22,15 @@ export class CreateOrderDto {
   @IsNotEmpty()
   delivery_date: string;
 
-  @ApiPropertyOptional({ default: 0 })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  grand_total?: number = 0;
+  @IsNotEmpty()
+  grand_total: number;
 
   @ApiPropertyOptional({ default: 0 })
   @IsNumber()
   @IsOptional()
-  discount?: number = 0;
+  discount = 0;
 
   @ApiProperty()
   @ValidateNested({ each: true })

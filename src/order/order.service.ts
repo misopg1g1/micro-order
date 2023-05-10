@@ -36,12 +36,12 @@ export class OrderService {
       }
     }
     for (const itemDto of Object.values(mergedItems)) {
-      const itemEntity = this.itemRepository.save(itemDto);
+      const itemEntity = await this.itemRepository.save(itemDto);
       storedItems.push(itemEntity);
     }
     const orderEntity = plainToInstance(OrderEntity, newOrder);
     orderEntity.items = storedItems;
-    return await this.orderRepository.save(storedItems);
+    return await this.orderRepository.save(orderEntity);
   }
 
   async findAll(skip = 0, relations: boolean, take?: number) {
@@ -87,6 +87,7 @@ export class OrderService {
     const newObj = {};
     let orderItems = [...storedOrder.items];
     const visitKeys = ['grand_total', 'discount', 'delivery_date', 'items'];
+    let itemsToDelete: string[] = [];
     for (const key_present of Object.keys(obj)) {
       if (visitKeys.includes(key_present)) {
         if (key_present === 'items') {
@@ -102,6 +103,10 @@ export class OrderService {
               const existingItems = orderItems.filter(
                 (item) => item.product_id === rawItemEntity.product_id,
               );
+              itemsToDelete = [
+                ...itemsToDelete,
+                ...existingItems.map((item) => item.id),
+              ];
               rawItemEntity.quantity = [...existingItems, rawItemEntity].reduce(
                 (total, itm) => {
                   return total + itm.quantity;
@@ -115,20 +120,23 @@ export class OrderService {
                 ),
                 itemEntity,
               ];
-              for (const itemToRemove of existingItems) {
-                await this.itemRepository.delete({ id: itemToRemove.id });
-              }
             }
           }
-          newObj[key_present] = orderItems;
+          storedOrder.items = orderItems;
+          await this.orderRepository.save(storedOrder);
+        } else {
+          newObj[key_present] = obj[key_present];
         }
-        newObj[key_present] = obj[key_present];
       }
     }
     if (Object.keys(newObj).length > 0) {
       await this.orderRepository.update(id, newObj);
     }
-
+    if (itemsToDelete) {
+      for (const itemId of new Set(itemsToDelete)) {
+        await this.itemRepository.delete({ id: itemId });
+      }
+    }
     return await this.orderRepository.findOne({
       where: { id },
       relations: ['items'],

@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ItemEntity } from './item.entity';
 
 @Entity()
@@ -20,4 +26,9 @@ export class OrderEntity {
 
   @OneToMany(() => ItemEntity, (item) => item.order)
   items: ItemEntity[];
+
+  @BeforeInsert()
+  generateDefaultValues() {
+    this.discount = this.discount || 0;
+  }
 }
