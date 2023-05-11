@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ItemDto } from './item.dto';
-import {Transform, TransformFnParams, Type} from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export class CreateOrderDto {
   @ApiProperty()

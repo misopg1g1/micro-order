@@ -11,10 +11,10 @@ import {
 import { BusinessErrorsInterceptor } from 'src/shared/interceptors/business-errors.interceptor';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './order.dto';
-import {ApiBody, ApiQuery} from '@nestjs/swagger';
+import { ApiBody, ApiQuery } from '@nestjs/swagger';
 
 @UseInterceptors(BusinessErrorsInterceptor)
-@Controller('order')
+@Controller('orders')
 export class OrderController {
   constructor(private orderService: OrderService) {}
 
