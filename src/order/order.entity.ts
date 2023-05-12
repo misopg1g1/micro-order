@@ -25,8 +25,8 @@ export class OrderEntity {
   @Column()
   visit_id: string;
 
-  @Column({ type: 'enum', enum: StatusEnum, default: StatusEnum.CREATED })
-  status: StatusEnum;
+  @Column()
+  status: string;
 
   @OneToMany(() => ItemEntity, (item) => item.order)
   items: ItemEntity[];
