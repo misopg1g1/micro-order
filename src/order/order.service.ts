@@ -73,73 +73,73 @@ export class OrderService {
     return visit;
   }
 
-  async update(id: string, obj: object) {
-    const storedOrder: OrderEntity = await this.orderRepository.findOne({
-      where: { id },
-      relations: ['items'],
-    });
-    if (!storedOrder)
-      throw new BusinessLogicException(
-        'La orden con el id dado no fue encontrada',
-        BusinessError.NOT_FOUND,
-      );
-
-    const newObj = {};
-    let orderItems = [...storedOrder.items];
-    const visitKeys = ['grand_total', 'discount', 'delivery_date', 'items'];
-    let itemsToDelete: string[] = [];
-    for (const key_present of Object.keys(obj)) {
-      if (visitKeys.includes(key_present)) {
-        if (key_present === 'items') {
-          for (const newItem of obj[key_present]) {
-            const rawItemEntity = plainToInstance(ItemEntity, newItem);
-            const errors = await validate(rawItemEntity);
-            if (errors.length > 0) {
-              throw new BusinessLogicException(
-                'La estructura de uno de los items no es válida',
-                BusinessError.BAD_REQUEST,
-              );
-            } else {
-              const existingItems = orderItems.filter(
-                (item) => item.product_id === rawItemEntity.product_id,
-              );
-              itemsToDelete = [
-                ...itemsToDelete,
-                ...existingItems.map((item) => item.id),
-              ];
-              rawItemEntity.quantity = [...existingItems, rawItemEntity].reduce(
-                (total, itm) => {
-                  return total + itm.quantity;
-                },
-                0,
-              );
-              const itemEntity = await this.itemRepository.save(rawItemEntity);
-              orderItems = [
-                ...orderItems.filter(
-                  (itm) => itm.product_id !== itemEntity.product_id,
-                ),
-                itemEntity,
-              ];
-            }
-          }
-          storedOrder.items = orderItems;
-          await this.orderRepository.save(storedOrder);
-        } else {
-          newObj[key_present] = obj[key_present];
-        }
-      }
-    }
-    if (Object.keys(newObj).length > 0) {
-      await this.orderRepository.update(id, newObj);
-    }
-    if (itemsToDelete) {
-      for (const itemId of new Set(itemsToDelete)) {
-        await this.itemRepository.delete({ id: itemId });
-      }
-    }
-    return await this.orderRepository.findOne({
-      where: { id },
-      relations: ['items'],
-    });
-  }
+  // async update(id: string, obj: object) {
+  //   const storedOrder: OrderEntity = await this.orderRepository.findOne({
+  //     where: { id },
+  //     relations: ['items'],
+  //   });
+  //   if (!storedOrder)
+  //     throw new BusinessLogicException(
+  //       'La orden con el id dado no fue encontrada',
+  //       BusinessError.NOT_FOUND,
+  //     );
+  //
+  //   const newObj = {};
+  //   let orderItems = [...storedOrder.items];
+  //   const visitKeys = ['grand_total', 'discount', 'delivery_date', 'items'];
+  //   let itemsToDelete: string[] = [];
+  //   for (const key_present of Object.keys(obj)) {
+  //     if (visitKeys.includes(key_present)) {
+  //       if (key_present === 'items') {
+  //         for (const newItem of obj[key_present]) {
+  //           const rawItemEntity = plainToInstance(ItemEntity, newItem);
+  //           const errors = await validate(rawItemEntity);
+  //           if (errors.length > 0) {
+  //             throw new BusinessLogicException(
+  //               'La estructura de uno de los items no es válida',
+  //               BusinessError.BAD_REQUEST,
+  //             );
+  //           } else {
+  //             const existingItems = orderItems.filter(
+  //               (item) => item.product_id === rawItemEntity.product_id,
+  //             );
+  //             itemsToDelete = [
+  //               ...itemsToDelete,
+  //               ...existingItems.map((item) => item.id),
+  //             ];
+  //             rawItemEntity.quantity = [...existingItems, rawItemEntity].reduce(
+  //               (total, itm) => {
+  //                 return total + itm.quantity;
+  //               },
+  //               0,
+  //             );
+  //             const itemEntity = await this.itemRepository.save(rawItemEntity);
+  //             orderItems = [
+  //               ...orderItems.filter(
+  //                 (itm) => itm.product_id !== itemEntity.product_id,
+  //               ),
+  //               itemEntity,
+  //             ];
+  //           }
+  //         }
+  //         storedOrder.items = orderItems;
+  //         await this.orderRepository.save(storedOrder);
+  //       } else {
+  //         newObj[key_present] = obj[key_present];
+  //       }
+  //     }
+  //   }
+  //   if (Object.keys(newObj).length > 0) {
+  //     await this.orderRepository.update(id, newObj);
+  //   }
+  //   if (itemsToDelete) {
+  //     for (const itemId of new Set(itemsToDelete)) {
+  //       await this.itemRepository.delete({ id: itemId });
+  //     }
+  //   }
+  //   return await this.orderRepository.findOne({
+  //     where: { id },
+  //     relations: ['items'],
+  //   });
+  // }
 }

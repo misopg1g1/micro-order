@@ -52,12 +52,12 @@ export class OrderController {
     return await this.orderService.findOne(order_id, transformedRelations);
   }
 
-  @Put(':order_id')
-  @ApiBody({})
-  async updateOrderById(
-    @Param('order_id') order_id: string,
-    @Body() partialOrder: object,
-  ) {
-    return await this.orderService.update(order_id, partialOrder);
-  }
+  // @Put(':order_id')
+  // @ApiBody({})
+  // async updateOrderById(
+  //   @Param('order_id') order_id: string,
+  //   @Body() partialOrder: object,
+  // ) {
+  //   return await this.orderService.update(order_id, partialOrder);
+  // }
 }
