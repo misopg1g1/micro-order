@@ -15,6 +15,8 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+RUN rm -rf consumer
+
 # Creates a "dist" folder with the production build
 RUN npm run build
 
