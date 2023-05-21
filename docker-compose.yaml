@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=my-database
+      - POSTGRES_USER=db-username
+      - POSTGRES_PASSWORD=db-password
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=rabbit-password
+
+  micro-order-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3002:3002
+    environment:
+      - DB_DIALECT=postgres
+      - DB_DRIVER=postgres
+      - DB_HOST=db
+      - DB_NAME=my-database
+      - DB_PASSWORD=db-password
+      - DB_PORT=5432
+      - DB_USERNAME=db-username
+      - ENCRYPTION_KEY_SECRET=encryption-key
+      - MICRO_SERVICE_URL=http://microservice-url
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PASSWORD=rabbit-password
+      - RABBIT_PORT=5672
+      - RABBIT_USER=user
+    depends_on:
+      - db
+      - rabbitmq
